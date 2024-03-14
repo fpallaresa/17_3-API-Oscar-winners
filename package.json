@@ -1,0 +1,38 @@
+{
+  "name": "17_3-api-oscar-winners",
+  "version": "1.0.0",
+  "description": "Api Oscar Winners",
+  "main": "index.js",
+  "scripts": {
+    "start": "npm run index",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepare": "husky install",
+    "lint": "eslint .",
+    "index": "nodemon ./index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fpallaresa/17_3-API-Oscar-winners.git"
+  },
+  "keywords": [
+    "oscars"
+  ],
+  "author": "francesc pallares",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/fpallaresa/17_3-API-Oscar-winners/issues"
+  },
+  "homepage": "https://github.com/fpallaresa/17_3-API-Oscar-winners#readme",
+  "devDependencies": {
+    "eslint": "^8.57.0",
+    "eslint-config-standard": "^17.1.0",
+    "eslint-plugin-import": "^2.29.1",
+    "eslint-plugin-n": "^16.6.2",
+    "eslint-plugin-promise": "^6.1.1",
+    "husky": "^8.0.0",
+    "nodemon": "^3.1.0"
+  },
+  "dependencies": {
+    "express": "^4.18.3"
+  }
+}

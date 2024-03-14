@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API de ganadores de los Oscars</title>
+</head>
+<body>
+    <h1>Bienvenido a la API de ganadores de los Oscars</h1>
+    <p>Puedes consultar:</p>
+    <ul>
+        <li><a href="#">Lista de años disponibles</a></li>
+        <li><a href="#">Premios de 2011</a></li>
+        <li>...</li>
+        <li><a href="#">Premios de 2015</a></li>
+    </ul>
+    <p>También puedes añadir premios a un año concreto (por ejemplo 2011) haciendo post a:</p>
+    <ul>
+        <li>/oscars-2011</li>
+    </ul>
+    <p>Y mandando el body correspondiente:</p>
+    <code>{ "category": "ACTRESS IN A LEADING ROLE", "entity": "Meryl Streep" }</code>
+    <p>Para consultar en un año qué película o actores se llevaron más de 1 premio:</p>
+    <ul>
+        <li><a href="#">Lista de ganadores múltiples (2011)</a></li>
+        <li><a href="#">Lista de ganadores múltiples (2015)</a></li>
+    </ul>
+</body>
+</html>

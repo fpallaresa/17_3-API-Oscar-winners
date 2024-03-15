@@ -4,76 +4,50 @@ const fs = require("fs");
 const PORT = 3000;
 const server = express();
 const router = express.Router();
-const driversFilesPath = "./drivers.json";
+const oscarsFilesPath = "./data/";
 
 // Configuración del server
 server.use(express.json());
 server.use(express.urlencoded({ extended: false }));
 
 router.get("/", (req, res) => {
-  // Leemos el fichero index.html
   fs.readFile("./templates/index.html", "utf-8", (error, data) => {
     if (error) {
       res.status(500).send("Error al leer el archivo");
     } else {
-      res.set("Content-Type", "text/html");
+      res.statusCode = 200;
+      res.setHeader("Content-Type", "text/html");
       res.send(data);
     }
   });
 });
 
-router.get("/f1-driver", (req, res) => {
-  fs.readFile(driversFilesPath, (error, data) => {
+router.get("/oscars", (req, res) => {
+  fs.readdir(oscarsFilesPath, (error, files) => {
     if (error) {
       res.status(500).send("Error inesperado");
     } else {
-      const drivers = JSON.parse(data);
-      res.json(drivers);
+      res.statusCode = 200;
+      res.setHeader("Content-Type", "application/json", "charset=UTF-8");
+      const years = extractYears(files);
+      res.json({ years });
     }
   });
 });
 
-router.post("/f1-driver", (req, res) => {
-  // Leemos el fichero drivers
-  fs.readFile(driversFilesPath, (error, data) => {
-    if (error) {
-      res.status(500).send("Error inesperado");
-    } else {
-      const drivers = JSON.parse(data);
-      const newDriver = req.body;
-      const lastId = drivers[drivers.length - 1].id;
-      newDriver.id = lastId + 1;
-      drivers.push(newDriver);
+function extractYears(files) {
+  const yearsSet = [];
 
-      // Guardamos fichero
-      fs.writeFile(driversFilesPath, JSON.stringify(drivers), (error) => {
-        if (error) {
-          res.status(500).send("Error inesperado");
-        } else {
-          res.json(newDriver);
-        }
-      });
+  files.forEach((file) => {
+    const startIndex = file.indexOf("oscars-") + 7; // +7 porqué oscars- tiene 7 caracteres
+    const year = file.substring(startIndex, startIndex + 4); // subtring saca los datos de un inicio y un final
+    if (!isNaN(year) && year.length === 4) {
+      yearsSet.push(year);
     }
   });
-});
 
-router.get("/f1-driver/:id", (req, res) => {
-  fs.readFile(driversFilesPath, (error, data) => {
-    if (error) {
-      res.status(500).send("Error inesperado");
-    } else {
-      const id = parseInt(req.params.id);
-      const drivers = JSON.parse(data);
-      const driver = drivers.find((driver) => driver.id === id);
-
-      if (driver) {
-        res.json(driver);
-      } else {
-        res.status(404).send("Pokemon con encontrado.");
-      }
-    }
-  });
-});
+  return yearsSet;
+}
 
 server.use("/", router);
 

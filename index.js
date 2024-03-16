@@ -26,28 +26,98 @@ router.get("/oscars", (req, res) => {
   fs.readdir(oscarsFilesPath, (error, files) => {
     if (error) {
       res.status(500).send("Error inesperado");
+    }
+    const yearList = files.map((file) => file.replace(".json", "").replace("oscars-", ""));
+    res.json({ years: yearList });
+  });
+});
+
+router.get("/oscars/:year", (req, res) => {
+  const year = req.params.year;
+  const yearFilePath = oscarsFilesPath + `oscars-${year}.json`;
+
+  fs.readFile(yearFilePath, (error, data) => {
+    if (error) {
+      res.status(404).send("Página no encontrada.");
     } else {
-      res.statusCode = 200;
-      res.setHeader("Content-Type", "application/json", "charset=UTF-8");
-      const years = extractYears(files);
-      res.json({ years });
+      try {
+        res.statusCode = 200;
+        const yearData = JSON.parse(data);
+        res.setHeader("Content-Type", "application/json", "charset=UTF-8");
+        res.json({ yearData });
+      } catch {
+        res.status(500).send("Error inesperado");
+      }
     }
   });
 });
 
-function extractYears(files) {
-  const yearsSet = [];
+router.post("/oscars/:year", (req, res) => {
+  const year = req.params.year;
+  const yearFilePath = oscarsFilesPath + `oscars-${year}.json`;
 
-  files.forEach((file) => {
-    const startIndex = file.indexOf("oscars-") + 7; // +7 porqué oscars- tiene 7 caracteres
-    const year = file.substring(startIndex, startIndex + 4); // subtring saca los datos de un inicio y un final
-    if (!isNaN(year) && year.length === 4) {
-      yearsSet.push(year);
+  fs.readFile(yearFilePath, (error, data) => {
+    if (error) {
+      const newOscarData = [req.body];
+
+      fs.writeFile(yearFilePath, JSON.stringify(newOscarData), (error) => {
+        if (error) {
+          res.status(500);
+          res.send("Error inesperado");
+        }
+        res.status(200);
+        res.json(newOscarData);
+      });
+    } else {
+      try {
+        const oscarData = JSON.parse(data);
+        oscarData.push(req.body);
+
+        fs.writeFile(yearFilePath, JSON.stringify(oscarData), (error) => {
+          if (error) {
+            res.status(500);
+            res.send("Error inesperado");
+          }
+          res.status(200);
+          res.json(oscarData);
+        });
+      } catch {
+        res.status(500);
+        res.send("Error inesperado");
+      }
     }
   });
+});
 
-  return yearsSet;
-}
+router.get("/winners-multiple/:year", (req, res) => {
+  const year = req.params.year;
+  const yearFilePath = oscarsFilesPath + `oscars-${year}.json`;
+
+  fs.readFile(yearFilePath, (error, data) => {
+    if (error) {
+      res.status(500).send("Error inesperado");
+    } else {
+      try {
+        const oscarData = JSON.parse(data);
+        const multipleWinners = oscarData.reduce((acc, curr) => {
+          const existingWinnerIndex = acc.findIndex((winner) => winner.name === curr.entity);
+
+          if (existingWinnerIndex === -1) {
+            acc.push({ name: curr.entity, awards: [{ category: curr.category, year }] });
+          } else {
+            acc[existingWinnerIndex].awards.push({ category: curr.category, year });
+          }
+
+          return acc;
+        }, []);
+        const winnersWithMultipleAwards = multipleWinners.filter((winner) => winner.awards.length > 1);
+        res.json({ winners: winnersWithMultipleAwards });
+      } catch {
+        res.status(500).send("Error inesperado");
+      }
+    }
+  });
+});
 
 server.use("/", router);
 
